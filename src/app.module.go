@@ -2,7 +2,6 @@ package src
 
 import (
 	"context"
-	"database/sql"
 	"template/src/common"
 	"template/src/generated/sqlc"
 	"template/src/modules/user"
@@ -13,31 +12,19 @@ import (
 type AppModule struct {
 	modules []common.IModule
 	App     *fiber.App
+	Ctx     context.Context
+	Queries *sqlc.Queries
 }
 
 func (app AppModule) Bootstrap() {
-	ctx := context.Background()
-	db, err := sql.Open("postgres", "user=postgres dbname=postgres sslmode=disable")
-	if err != nil {
-		panic(err)
-	}
-	queries := sqlc.New(db)
-	builder := app.createAppBuilder()
-	builder.addModule(user.UserModule{})
-	builder.done(*queries, ctx)
-
-}
-
-func (app *AppModule) addModule(module any) *AppModule {
-	app.modules = append(app.modules, module.(common.IModule))
-	return app
-}
-func (app *AppModule) done(queries sqlc.Queries, ctx context.Context) {
-	for _, m := range app.modules {
-		m.Bundle(queries, ctx, app.App)
-	}
-}
-
-func (app AppModule) createAppBuilder() *AppModule {
-	return &app
+	builder := app.CreateAppBuilder()
+	builder.AddModule(user.UserModule{
+		Imports: common.Imports{
+			Env:     common.Env{},
+			App:     app.App,
+			Ctx:     app.Ctx,
+			Queries: *app.Queries,
+		},
+	})
+	builder.Build()
 }

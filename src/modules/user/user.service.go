@@ -1,15 +1,12 @@
 package user
 
 import (
-	"context"
+	"template/src/common"
 	"template/src/generated/sqlc"
 )
 
-type UserService struct {
-	ctx     context.Context
-	queries sqlc.Queries
-}
+type UserService common.Service
 
 func (service UserService) findById(id int32) (sqlc.User, error) {
-	return service.queries.GetUser(service.ctx, id)
+	return service.Imports.Queries.GetUser(service.Imports.Ctx, id)
 }

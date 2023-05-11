@@ -1,23 +1,26 @@
 package user
 
 import (
-	"context"
-	"template/src/generated/sqlc"
+	"template/src/common"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type UserModule struct{}
+type UserModule common.Module
 
-func (module UserModule) Bundle(queries sqlc.Queries, context context.Context, App *fiber.App) {
+func (module UserModule) createController() common.IController {
 	service := UserService{
-		queries: queries,
-		ctx:     context,
+		Imports: module.Imports,
 	}
 	controller := UserController{
 		service: service,
-		app:     App,
+		imports: module.Imports,
 	}
-	controller.initRoutes()
+	return controller
+}
+
+func (module UserModule) Bundle() fiber.Router {
+	module.Controller = module.createController()
+	return module.Controller.InitRoutes()
 
 }
