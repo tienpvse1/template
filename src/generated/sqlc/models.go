@@ -9,7 +9,8 @@ import (
 )
 
 type User struct {
-	ID   int32
-	Name string
-	Bio  sql.NullString
+	ID      int32
+	Name    string
+	Bio     sql.NullString
+	Address sql.NullString
 }
